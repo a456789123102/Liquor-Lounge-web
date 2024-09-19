@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  name     String?
+  password String
+  Stores   Store[]
+  Branch   Branch? @relation(fields: [branchId], references: [id])
+  branchId Int?
+}
+
+model Store {
+  id      Int      @id @default(autoincrement())
+  name    String
+  owner   User     @relation(fields: [ownerId], references: [id])
+  ownerId Int
+  Branch  Branch[]
+}
+
+model Branch {
+  id      Int    @id @default(autoincrement())
+  name    String
+  store   Store  @relation(fields: [storeId], references: [id])
+  storeId Int
+  Staffs  User[]
+}
+
+model Menu {
+  id           Int           @id @default(autoincrement())
+  name         String
+  price        Float
+  image        String
+  maxAmout     Float         @default(0)
+  isActive     Boolean       @default(true)
+  PackageMenus PackageMenu[]
+}
+
+model Package {
+  id           Int           @id @default(autoincrement())
+  name         String
+  type         String
+  startPrice   Float
+  isActive     Boolean       @default(true)
+  PackageMenus PackageMenu[]
+}
+
+model PackageMenu {
+  menu      Menu    @relation(fields: [menuId], references: [id])
+  package   Package @relation(fields: [packageId], references: [id])
+  menuId    Int
+  packageId Int
+
+  @@id([menuId, packageId])
+}
